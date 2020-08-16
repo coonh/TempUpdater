@@ -19,3 +19,6 @@ dependencies {
 compileJava {
     options.encoding = 'UTF-8'
 }
+run {
+    standardInput = System.in
+}
