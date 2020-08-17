@@ -33,4 +33,8 @@ public class Main {
         };
         t1.start();
     }
+
+    private static void checkFolder() {
+
+    }
 }

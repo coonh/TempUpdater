@@ -5,6 +5,9 @@ plugins {
 }
 
 mainClassName = 'main.Main'
+
+sourceCompatibility = 1.8
+
 group 'de.coonh'
 version 'v0.0.1'
 
