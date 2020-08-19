@@ -1,13 +1,12 @@
 package main;
 
+import database.DatabaseConnector;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.*;
-import java.sql.Time;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Timer;
 import java.util.concurrent.*;
 
 public class Updater extends Thread{
@@ -20,13 +19,14 @@ public class Updater extends Thread{
     public Boolean running = false;
     private ScheduledExecutorService scheduler;
     private final int delay = 3000;
+    private int [] values;
+    private String collumnString;
 
     public Updater(){
         checkForDir();
         File l = new File(path);
         ips = new ArrayList<>();
         paths = new ArrayList<>();
-        String content="";
         try {
            BufferedReader r = new BufferedReader(new FileReader(l));
            String st;
@@ -38,6 +38,8 @@ public class Updater extends Thread{
                System.out.println(st);
                System.out.println("---------------------------");
            }
+           values = new int[ips.size()];
+           buildIpString();
            r = new BufferedReader(new FileReader(new File("data"+File.separator+"path.txt")));
            tempFileLocation = r.readLine();
             System.out.println("Location of sensors: "+tempFileLocation);
@@ -54,6 +56,20 @@ public class Updater extends Thread{
         }
 
 
+    }
+
+    private void buildIpString() {
+        collumnString ="";
+        for(int i=1;i<=ips.size();i++){
+            if(i<=(ips.size()/2)){
+                collumnString = collumnString + "w1_"+i+", ";
+            }else if(i>ips.size()/2){
+                collumnString = collumnString + "w2_"+(i-(ips.size()/2))+", ";
+            }
+        }
+        collumnString = collumnString.substring(0, collumnString.length() - 2);
+        System.out.println("Database needs following collumns: \n"+collumnString);
+        System.out.println("===========================");
     }
 
     private void checkForDir() {
@@ -99,6 +115,7 @@ public class Updater extends Thread{
                     float number = Integer.parseInt(line.substring(t + 2, line.length()));
                     number = Math.round(number/1000);
                     r.close();
+                    values[i]=(int) number;
 
                     if (i < 11) {
                         obj.put("w1_" + (i+1), number);
@@ -108,12 +125,14 @@ public class Updater extends Thread{
 
                 } catch (FileNotFoundException e) {
                     try {
-                        if (i < 11) {
+                        if (i <= ips.size()/2) {
                             System.err.println("Sensor w1_"+ (i+1)+" was not found!");
                             obj.put("w1_" + (i+1), "ERR");
+                            values[i]= -1;
                         } else {
                             System.err.println("Sensor w2_"+(i+1-ips.size()/2)+" was not found!");
                             obj.put("w2_"+(i+1-ips.size()/2), "ERR");
+                            values[i]= -1;
                         }
                     } catch (JSONException jsonException) {
                         jsonException.printStackTrace();
@@ -126,8 +145,19 @@ public class Updater extends Thread{
                 }
             }
             System.out.println("Update successful "+ new Date());
+        insertIntoDatabase();
             writeJSONFile(obj);
+    }
 
+    private void insertIntoDatabase() {
+        String output ="";
+        for (int i : values){
+            output = output + i+", ";
+        }
+        output = output.substring(0,output.length()-2);
+        DatabaseConnector.getInstance().sqlInsertRequest("INSERT INTO temperaturdaten ("+collumnString+") " +
+                "VALUES ("+output+");");
+        System.out.println("Database Entry: "+output+" : successful");
     }
 
     public void exit(){
