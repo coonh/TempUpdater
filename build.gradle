@@ -19,6 +19,7 @@ dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
     compile group: 'org.json', name: 'json', version: '20090211'
     compile group: 'mysql', name: 'mysql-connector-java', version: '8.0.21'
+    compile group: 'org.mariadb.jdbc', name: 'mariadb-java-client', version: '2.6.2'
 }
 compileJava {
     options.encoding = 'UTF-8'

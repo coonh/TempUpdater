@@ -12,7 +12,7 @@ public class Main {
         u1.start();
         Thread t1 = new Thread(){
             @Override
-            public synchronized void start() {
+            public synchronized void run() {
                 while (u1.running){
                     try{
                         String input = scanner.nextLine();

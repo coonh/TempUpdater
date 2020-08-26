@@ -10,7 +10,7 @@ import java.util.Date;
 import java.util.Random;
 import java.util.concurrent.*;
 
-public class Updater extends Thread{
+public class Updater{
 
     private String tempFileLocation;
     private final String JSONLocation = "data"+File.separator+"data.json";
@@ -93,7 +93,6 @@ public class Updater extends Thread{
         }
     }
 
-    @Override
     public synchronized void start() {
         scheduler = Executors.newScheduledThreadPool(1);
         running = true;

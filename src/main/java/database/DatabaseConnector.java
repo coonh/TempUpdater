@@ -6,10 +6,10 @@ public class DatabaseConnector {
 
     private static DatabaseConnector instance;
     private Connection connection;
-    private final String host = "coonh.de";
+    private final String host = "192.168.178.58";
     private final String database = "Hopfentrocknung";
-    private final String user = "sql_writer";
-    private final String passwd = "sql_writer_123";
+    private final String user = "admin";
+    private final String passwd = "sql_adm1n";
 
     private DatabaseConnector(){
         connectToMysql(host, database, user, passwd);
@@ -40,17 +40,25 @@ public class DatabaseConnector {
         return instance;
     }
 
-    private boolean connectToMysql(String host, String database, String user, String passwd){
+    private void connectToMysql(String host, String database, String user, String passwd){
         try{
             Class.forName("com.mysql.cj.jdbc.Driver");
             String connectionCommand = "jdbc:mysql://"+host+"/"+database+"?user="+user+"&password="+passwd;
+            System.out.println("Try to connect to MySQL Databasae: ");
             connection = DriverManager.getConnection(connectionCommand);
-            return true;
+            System.out.println("Connection successful!");
 
         }catch (Exception ex){
-            System.out.println("false");
-            ex.printStackTrace();
-            return false;
+            try {
+                System.out.println("Connection to MySQL failed!");
+                System.out.println("Try to connect to MariaDB Database");
+                Class.forName("org.mariadb.jdbc.Driver");
+                String mariaDBConnection = "jdbc:mariadb://"+host+":3306/"+database+"?user="+user+"&password="+passwd;
+                connection = DriverManager.getConnection(mariaDBConnection);
+                System.out.println("Connection successful!");
+            } catch (ClassNotFoundException | SQLException e) {
+                e.printStackTrace();
+            }
         }
     }
 
