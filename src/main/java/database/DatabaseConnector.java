@@ -6,7 +6,7 @@ public class DatabaseConnector {
 
     private static DatabaseConnector instance;
     private Connection connection;
-    private final String host = "192.168.178.58";
+    private final String host = "coonh.de";
     private final String database = "Hopfentrocknung";
     private final String user = "admin";
     private final String passwd = "sql_adm1n";

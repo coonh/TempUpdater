@@ -20,6 +20,8 @@ public class Updater{
     public Boolean running = false;
     private ScheduledExecutorService scheduler;
     protected final int delay = 3000;
+    protected final int databaseDelay = 5*60000;
+    protected int delayNow;
     private int [] values;
     private String columnString;
 
@@ -28,6 +30,7 @@ public class Updater{
         File l = new File(path);
         ips = new ArrayList<>();
         paths = new ArrayList<>();
+        delayNow = databaseDelay;
         try {
            BufferedReader r = new BufferedReader(new FileReader(l));
            String st;
@@ -142,7 +145,11 @@ public class Updater{
                 }
             }
             System.out.println("Update successful "+ new Date());
-        insertIntoDatabase();
+        delayNow = delayNow - delay;
+        if(delayNow<=0){
+            insertIntoDatabase();
+            delayNow = databaseDelay;
+        }
             writeJSONFile(obj);
     }
 
