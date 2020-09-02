@@ -19,8 +19,8 @@ public class Updater{
     private final ArrayList<String> paths;
     public Boolean running = false;
     private ScheduledExecutorService scheduler;
-    protected final int delay = 3000;
-    protected final int databaseDelay = 5*60000;
+    protected final int delay = 22000;
+    protected final int databaseDelay = 1*30000;
     protected int delayNow;
     private int [] values;
     private String columnString;
@@ -97,6 +97,7 @@ public class Updater{
     }
 
     public synchronized void start() {
+        update();
         scheduler = Executors.newScheduledThreadPool(1);
         running = true;
         Runnable task2 = this::update;
@@ -114,16 +115,31 @@ public class Updater{
                     int t = line.indexOf('t');
                     float number = Integer.parseInt(line.substring(t + 2));
                     number = Math.round(number/1000);
-                    //the next to lines generate random values
-                    //Random rand = new Random();
-                    //number = rand.nextInt((70 - 20) + 1) + 20;
+                    /**The next Section Simulates values
+
+                    if(values[i]==0){
+                        values[i] = 40;
+                    }else{
+                        Random rand = new Random();
+                        int interval = rand.nextInt(2);
+                        boolean add = rand.nextBoolean();
+                        if(add){
+                            values[i]= values[i] + interval;
+                        }else {
+                            values[i] = values[i] - interval;
+                        }
+                    }
+                    System.out.println(values[i]);
+
+
+                    **/
                     r.close();
                     values[i]=(int) number;
 
                     if (i < 11) {
-                        obj.put("w1_" + (i+1), number);
+                        obj.put("w1_" + (i+1), values[i]);
                     } else {
-                        obj.put("w2_"+(i+1-ips.size()/2), number);
+                        obj.put("w2_"+(i+1-ips.size()/2), values[i]);
                     }
 
                 } catch (FileNotFoundException | JSONException e) {
@@ -144,13 +160,20 @@ public class Updater{
                     e.printStackTrace();
                 }
             }
-            System.out.println("Update successful "+ new Date());
+
         delayNow = delayNow - delay;
         if(delayNow<=0){
             insertIntoDatabase();
             delayNow = databaseDelay;
         }
-            writeJSONFile(obj);
+        Date date = new Date();
+        try {
+            obj.put("timestamp", date);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        writeJSONFile(obj);
+        System.out.println("Update successful "+ date);
     }
 
     private void insertIntoDatabase() {
