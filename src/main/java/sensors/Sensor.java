@@ -11,14 +11,13 @@ public class Sensor {
     private URL ip;
     private JSONObject data;
 
-    public Sensor(String name, String ip, JSONObject data){
+    public Sensor(String name, String ip){
         this.name = name;
         try {
             this.ip = new URL(ip);
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }
-        this.data = data;
     }
 
     public void updateData(String ptr){
@@ -34,5 +33,9 @@ public class Sensor {
 
     public URL getIp() {
         return ip;
+    }
+
+    public String getName(){
+        return name;
     }
 }

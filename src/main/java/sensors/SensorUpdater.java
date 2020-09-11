@@ -3,9 +3,7 @@ package sensors;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -37,9 +35,29 @@ public class SensorUpdater {
                     input += inputLine;
                 in.close();
                 sensor.updateData(input);
+                printToFile(sensor);
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
+    }
+
+    private void printToFile(Sensor sensor) {
+        try {
+            File sensorFile = new File("data"+File.separator+"sensors"
+                    +File.separator+"data"+File.separator+sensor.getName()+".json");
+            FileWriter fw = new FileWriter(sensorFile);
+            fw.write(sensor.getData().toString());
+            fw.close();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void exit() {
+        running=false;
+        scheduler.shutdown();
+        System.out.println("Sensor task has shut down.");
     }
 }

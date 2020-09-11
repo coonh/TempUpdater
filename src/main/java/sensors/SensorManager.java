@@ -5,6 +5,7 @@ import org.json.JSONObject;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Iterator;
 
 public class SensorManager {
     private ArrayList<Sensor> sensors;
@@ -12,7 +13,15 @@ public class SensorManager {
     private static SensorManager instance;
 
     private SensorManager () {
+        sensors = new ArrayList<>();
         loadSensors();
+        printSensors();
+    }
+
+    private void printSensors() {
+        for (Sensor s: sensors) {
+            System.out.println("Sensor: "+s.getName()+" with Ip: "+s.getIp());
+        }
     }
 
     public static SensorManager getInstance () {
@@ -33,7 +42,12 @@ public class SensorManager {
                 content += line;
             }
             JSONObject obj = new JSONObject(content);
-
+            Iterator<String> keys = obj.keys();
+            while(keys.hasNext()){
+                String key = keys.next();
+                Sensor sensor = new Sensor(key,obj.getString(key));
+                sensors.add(sensor);
+            }
 
 
         } catch (FileNotFoundException e) {
@@ -47,12 +61,15 @@ public class SensorManager {
 
     private void checkDir() {
         try {
-            File dataDir = new File("data"+File.separator+"sensors");
-            boolean dirB = dataDir.mkdirs();
+            File sensorsDir = new File("data"+File.separator+"sensors");
+            boolean dirB = sensorsDir.mkdirs();
+            File dataDir = new File("data"+File.separator+"sensors"+File.separator+"data");
+            boolean dirB2 = dataDir.mkdirs();
             File sensorFile = new File("data"+File.separator+"sensors"+File.separator+"sensors.json");
             boolean sFboolean = sensorFile.createNewFile();
             System.out.println("===========================");
             System.out.println("/data/sensors created: "+dirB);
+            System.out.println("/data/sensors/data created: "+dirB2);
             System.out.println("sensors.json created: "+sFboolean);
             System.out.println("===========================");
 
