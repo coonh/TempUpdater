@@ -5,6 +5,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.*;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Random;
@@ -168,8 +169,9 @@ public class Updater{
             delayNow = databaseDelay;
         }
         Date date = new Date();
+        SimpleDateFormat formatedDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         try {
-            obj.put("timestamp", date);
+            obj.put("timestamp", formatedDate.format(date));
         } catch (JSONException e) {
             e.printStackTrace();
         }

@@ -2,6 +2,8 @@ package main;
 
 import sensors.SensorUpdater;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
 
@@ -9,6 +11,9 @@ public class Main {
 
 
     public static void main(String[] args) {
+        Date date = new Date();
+        SimpleDateFormat formatedDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        System.out.println(formatedDate.format(date));
         Scanner scanner = new Scanner(System.in);
         Updater u1 = new Updater();
         u1.start();
