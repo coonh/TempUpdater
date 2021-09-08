@@ -44,7 +44,7 @@ public class DatabaseConnector {
         try{
             Class.forName("com.mysql.cj.jdbc.Driver");
             String connectionCommand = "jdbc:mysql://"+host+"/"+database+"?user="+user+"&password="+passwd;
-            System.out.println("Try to connect to MySQL Databasae: ");
+            System.out.println("Try to connect to MySQL Database: ");
             connection = DriverManager.getConnection(connectionCommand);
             System.out.println("Connection successful!");
 

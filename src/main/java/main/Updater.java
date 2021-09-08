@@ -5,8 +5,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.*;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.Random;
 import java.util.concurrent.*;
 
@@ -19,33 +20,33 @@ public class Updater{
     private final ArrayList<String> paths;
     public Boolean running = false;
     private ScheduledExecutorService scheduler;
-    protected final int delay = 22000;
-    protected final int databaseDelay = 1*30000;
+    protected final int delay = 60000;
+    protected final int databaseDelay = 5*delay;
     protected int delayNow;
     private int [] values;
     private String columnString;
 
     public Updater(){
         checkForDir();
-        File l = new File(path);
+        File dataLocationFile = new File(path);
         ips = new ArrayList<>();
         paths = new ArrayList<>();
         delayNow = databaseDelay;
         try {
-           BufferedReader r = new BufferedReader(new FileReader(l));
-           String st;
+           BufferedReader fileReader = new BufferedReader(new FileReader(dataLocationFile));
+           String tempLineString;
             System.out.println("===========================");
             System.out.println("Searching for the following Sensors: ");
             System.out.println("===========================");
-           while ((st =r.readLine())!=null) {
-               ips.add(st);
-               System.out.println(st);
+           while ((tempLineString =fileReader.readLine())!=null) {
+               ips.add(tempLineString);
+               System.out.println(tempLineString);
                System.out.println("---------------------------");
            }
            values = new int[ips.size()];
            buildIpString();
-           r = new BufferedReader(new FileReader(new File("data"+File.separator+"path.txt")));
-           tempFileLocation = r.readLine();
+           fileReader = new BufferedReader(new FileReader(new File("data"+File.separator+"path.txt")));
+           tempFileLocation = fileReader.readLine();
             System.out.println("Location of sensors: "+tempFileLocation);
             System.out.println("===========================");
 
@@ -53,8 +54,8 @@ public class Updater{
             e.printStackTrace();
         }
 
-        for (String st:ips) {
-            paths.add(tempFileLocation+File.separator+st+File.separator+"w1_slave");
+        for (String ipString:ips) {
+            paths.add(tempFileLocation+File.separator+ipString+File.separator+"w1_slave");
         }
 
 
@@ -102,17 +103,17 @@ public class Updater{
         running = true;
         Runnable task2 = this::update;
         scheduler.scheduleAtFixedRate(task2,delay,delay,TimeUnit.MILLISECONDS);
-
     }
 
     private void update() {
             JSONObject obj = new JSONObject();
             for (int i = 0; i < ips.size(); i++) {
                 try {
-                    BufferedReader r = new BufferedReader(new FileReader(new File(paths.get(i))));
-                    r.readLine();
-                    String line = r.readLine();
+                    BufferedReader reader = new BufferedReader(new FileReader(new File(paths.get(i))));
+                    reader.readLine();
+                    String line = reader.readLine();
                     int t = line.indexOf('t');
+                    // number is the temperature
                     float number = Integer.parseInt(line.substring(t + 2));
                     number = Math.round(number/1000);
                     /**The next Section Simulates values
@@ -129,11 +130,12 @@ public class Updater{
                             values[i] = values[i] - interval;
                         }
                     }
-                    System.out.println(values[i]);
+                    //System.out.println(values[i]);
 
 
-                    **/
-                    r.close();
+                   **/
+                    reader.close();
+                    // values [] has every temperature value of the sensors
                     values[i]=(int) number;
 
                     if (i < 11) {
@@ -160,13 +162,15 @@ public class Updater{
                     e.printStackTrace();
                 }
             }
-
-        delayNow = delayNow - delay;
-        if(delayNow<=0){
-            insertIntoDatabase();
-            delayNow = databaseDelay;
-        }
-        Date date = new Date();
+            //insert into database
+//        delayNow = delayNow - delay;
+//        if(delayNow<=0){
+//            insertIntoDatabase();
+//            delayNow = databaseDelay;
+//        }
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd.LLL.yyyy HH:mm:ss");
+        LocalDateTime now = LocalDateTime.now();
+        String date = dtf.format(now);
         try {
             obj.put("timestamp", date);
         } catch (JSONException e) {
